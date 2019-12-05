@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta
+      name="description"
+      content="Local Storage from Wes Bos' Javascript 30."
+    />
+    <title>Local Storage</title>
+  </head>
+  <body>
+    <style>
+      body,
+      html {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #33130a;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='776' height='776' viewBox='0 0 20 20'%3E%3Cg %3E%3Cpolygon fill='%23440c08' points='20 10 10 0 0 0 20 20'/%3E%3Cpolygon fill='%23440c08' points='0 10 0 20 10 20'/%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      .list-container {
+        margin: 100px auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        max-width: 400px;
+        min-width: 200px;
+        width: 80%;
+        background-color: #f4f4f4;
+        padding: 15px;
+        border-radius: 5px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        width: 100%;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.2);
+        width: 100%;
+      }
+
+      li > label {
+        margin-left: 20px;
+        width: 100%;
+      }
+
+      form {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      form > input[type='submit'] {
+        border: none;
+        background-color: #bada55;
+        padding: 10px;
+        margin-left: auto;
+      }
+
+      li > input[type='checkbox']:before {
+        display: none;
+      }
+    </style>
+
+    <div class="list-container">
+      <h2>Food!</h2>
+      <ul>
+        <li>Loading Food...</li>
+      </ul>
+      <form class="add-food">
+        <input type="text" name="item" placeholder="Food Name" required />
+        <input type="submit" value="New Food Item" />
+      </form>
+    </div>
+
+    <script>
+      const form = document.querySelector('.add-food')
+      const list = document.querySelector('ul')
+      const items = JSON.parse(localStorage.getItem('items')) || []
+
+      function populateList(plates = [], platesList) {
+        platesList.innerHTML = plates
+          .map((plate, i) => {
+            return `
+            <li>
+              <input type="checkbox" data-index="${i}" id="item${i}" ${
+              plate.done ? 'checked' : ''
+            }/>
+              <label for="item${i}">${plate.text}</label>
+            </li>
+          `
+          })
+          .join('')
+      }
+
+      function toggleDone(e) {
+        if (!e.target.matches('input')) return
+        const index = e.target.dataset.index
+        items[index].done = !items[index].done
+        populateList(items, list)
+        localStorage.setItem('items', JSON.stringify(items))
+      }
+
+      function addItem(e) {
+        e.preventDefault()
+        const text = this.querySelector('[name=item]').value
+        const item = {
+          text,
+          done: false,
+        }
+        items.push(item)
+        populateList(items, list)
+        localStorage.setItem('items', JSON.stringify(items))
+        this.reset()
+      }
+
+      form.addEventListener('submit', addItem)
+      list.addEventListener('click', toggleDone)
+
+      populateList(items, list)
+    </script>
+  </body>
+</html>
